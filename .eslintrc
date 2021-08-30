@@ -1,0 +1,12 @@
+{
+  "extends": "airbnb",
+  "rules": {
+    "func-names": 0,
+    "semi": 2,
+    "no-console": 1,
+    "quotes": ["error", "double"],
+    "quote-props": ["error", "consistent"],
+    "no-unused-vars": "error"
+  },
+  "globals": {}
+}
