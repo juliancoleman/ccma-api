@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "tsc && cp -R public dist/",
+    "build:dev": "tsc && cp -r public dist/",
     "cleanup": "rm -rf dist/",
     "postinstall": "tsc && mv -i -v public dist/",
     "start": "node dist/server.js",
