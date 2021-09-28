@@ -19,7 +19,7 @@ export interface Registrant {
     state: string; // administrativeDistrictLevel1
     country: string;
     city: string; // locality
-    postalCode: number;
+    postalCode: string;
   };
   church: string; // companyName
   emailAddress: string;
@@ -64,6 +64,43 @@ export const createRegistrant = Bluebird.method<Registrant & Model>(
 );
 
 /**
+ * Given a registrant payload, stores a new Registrant in
+ * Firebase if one doesn't already exist. If the Registrant
+ * exists, updates all fields and returns the updated
+ * Registrant
+ *
+ * @param {Registrant} registrant a new registrant payload
+ * @returns the newly created or updated Registrant from Firebase
+ */
+export const upsertRegistrant = Bluebird.method<Registrant & Model>(
+  async (registrant: Registrant) => {
+    return createRegistrant(registrant)
+      .then((registrant) => registrant)
+      .catch(RegistrantAlreadyExistsError, async (_err) => {
+        const dbRegistrant = await getRegistrantByEmail(
+          registrant.emailAddress,
+        );
+        const { id, ...rest } = dbRegistrant;
+
+        const updatedRegistrant: Registrant & Model = {
+          ...rest,
+          ...registrant,
+          updatedAt: new Date().toISOString(),
+        };
+
+        // update the Registrant, but this always returns
+        // void. Firebase cannot update and return the
+        // updated document in the same call.
+        await registrantsRef
+          .child(dbRegistrant.id as string)
+          .update(updatedRegistrant);
+
+        return { ...updatedRegistrant, id };
+      });
+  },
+);
+
+/**
  * Retrieves all Registrants from the Firebase database
  * TODO: enable filtering
  *
@@ -95,7 +132,7 @@ export async function getRegistrants() {
  * @throws if the registrant cannot be found at the given Firebase key
  * @returns the Registrant given a Firebase key
  */
-export const getRegistrant = Bluebird.method<Registrant & Model>(
+export const getRegistrantById = Bluebird.method<Registrant & Model>(
   async (registrantId: Registrant['id']) => {
     const dbRegistrant = await registrantsRef
       .child(registrantId as string)
@@ -111,5 +148,39 @@ export const getRegistrant = Bluebird.method<Registrant & Model>(
     const registrant = { ...dbRegistrant.val(), id: dbRegistrant.key };
 
     return registrant;
+  },
+);
+
+/**
+ * Given an email address, retrieves the Registrant if one exists.
+ *
+ * @param emailAddress a registrant's email address
+ * @throws if the registrant cannot be found at the given email address
+ * @returns the Registrant given an email address
+ */
+export const getRegistrantByEmail = Bluebird.method<Registrant & Model>(
+  async (emailAddress: Registrant['emailAddress']) => {
+    const dbRegistrant = await registrantsRef
+      .orderByChild('emailAddress')
+      .equalTo(emailAddress)
+      .once('value');
+
+    if (!dbRegistrant.exists()) {
+      throw new RegistrantNotFoundError(
+        404,
+        `Registrant not found whose email is "${emailAddress}".`,
+      );
+    }
+
+    // Transform the dbRegistrant to put the key on the object itself
+
+    const registrant = dbRegistrant.val();
+    const id = Object.keys(registrant)[0];
+    const parsedRegistrant = {
+      id,
+      ...registrant[id],
+    };
+
+    return parsedRegistrant;
   },
 );

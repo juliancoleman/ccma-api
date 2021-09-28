@@ -23,7 +23,7 @@ router.get(
   '/:registrantId',
   celebrate(Validator.getSingleValidator),
   async (req, res, _next) => {
-    Service.getRegistrant(req.params.registrantId)
+    Service.getRegistrantById(req.params.registrantId)
       .then((registrant) => res.send(registrant))
       .catch(
         Errors.RegistrantNotFoundError,

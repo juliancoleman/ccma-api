@@ -27,10 +27,13 @@ export const createValidator = {
       registrationId: Joi.string().trim().required(),
       sourceId: Joi.string().trim().required(),
       amount: Joi.number().integer().positive().required(),
-      currency: Joi.string().trim().valid('USD').default('USD').required(),
+      currency: Joi.string().trim().valid('USD').default('USD').optional(),
       locationId: Joi.string().trim().required(),
-      idempotencyKey: Joi.string().trim().required(),
-      statementDescriptionIdentifier: Joi.string().trim().required(),
+      idempotencyKey: Joi.string()
+        .trim()
+        .uuid({ version: 'uuidv4' })
+        .required(),
+      statementDescriptionIdentifier: Joi.string().trim().max(20).required(),
     })
     .unknown(false),
 };

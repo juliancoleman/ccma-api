@@ -6,6 +6,8 @@ import sgMail from '@sendgrid/mail';
  * keys to the email template map. The value must be a
  * string. If using environment variables, ensure that
  * undefined variables are coerced to strings.
+ *
+ * TODO: allow only the tags available on each template.
  */
 export interface EmailTemplateMap {
   [key: string]: string;
@@ -20,6 +22,7 @@ export interface EmailTemplateMap {
 export interface SendEmailData {
   templateName: string;
   to: string;
+  [key: string]: any;
 }
 
 const {
@@ -60,10 +63,7 @@ export function sendEmail(data: SendEmailData) {
 
   return sgMail
     .send(msg)
-    .then((response) => {
-      console.log(response);
-      console.log('Email sent');
-
+    .then((response: [sgMail.ClientResponse, {}]) => {
       return response[0];
     })
     .catch(console.error);

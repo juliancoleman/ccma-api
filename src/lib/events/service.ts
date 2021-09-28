@@ -13,7 +13,7 @@ export interface Event {
   year: number;
 }
 
-const eventsRef = firebase.ref().child('events');
+export const eventsRef = firebase.ref().child('events');
 
 /**
  * Given an event payload, stores a new Event in Firebase

@@ -35,6 +35,7 @@ export const createValidator = {
             .positive()
             .min(10000)
             .max(99999)
+            .cast('string')
             .required(),
         })
         .required(),
