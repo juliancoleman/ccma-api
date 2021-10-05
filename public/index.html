@@ -1,0 +1,316 @@
+<!--
+  Copyright 2018 Square Inc.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Men's Advance | Register</title>
+  </head>
+  <body>
+    <link rel="stylesheet" href="mysqpaymentform.css" />
+
+    <div style="width: 687px; max-width: 100%; margin: 0 auto">
+      <p style="font-size: 12px; color: #555; margin: 1em 1em 2em">
+        Please fill out <strong>ALL</strong> the following fields to register
+        for the Men's Advance Retreat. Form is powered by Square, Inc. Payments
+        are submitted securely.
+      </p>
+    </div>
+    <div id="form-container">
+      <div>
+        <div>
+          <input
+            type="text"
+            id="givenName"
+            class="sq-input input-base half pad"
+            placeholder="First Name"
+            oninput="updateCustomerInfo(event)"
+          />
+          <input
+            type="text"
+            id="familyName"
+            class="sq-input input-base half pad"
+            placeholder="Last Name"
+            oninput="updateCustomerInfo(event)"
+          />
+        </div>
+        <input
+          type="text"
+          id="phoneNumber"
+          class="sq-input input-base"
+          placeholder="Phone Number"
+          oninput="updateCustomerInfo(event)"
+        />
+        <input
+          type="text"
+          id="emailAddress"
+          class="sq-input input-base"
+          placeholder="Email Address"
+          oninput="updateCustomerInfo(event)"
+        />
+        <input
+          type="text"
+          id="companyName"
+          class="sq-input input-base"
+          placeholder="Home Church"
+          oninput="updateCustomerInfo(event)"
+        />
+        <input
+          type="text"
+          id="addressLine1"
+          class="sq-input input-base"
+          placeholder="Address"
+          oninput="updateCustomerAddress(event)"
+        />
+        <input
+          type="text"
+          id="addressLine2"
+          class="sq-input input-base"
+          placeholder="Apt, Suite, etc. (optional)"
+          oninput="updateCustomerAddress(event)"
+        />
+        <div>
+          <input
+            type="text"
+            id="locality"
+            class="sq-input input-base third pad"
+            placeholder="City"
+            oninput="updateCustomerAddress(event)"
+          />
+          <input
+            type="text"
+            id="administrativeDistrictLevel1"
+            class="sq-input input-base third pad"
+            placeholder="State"
+            maxlength="2"
+            oninput="updateCustomerAddress(event)"
+          />
+          <input
+            type="number"
+            id="postalCode"
+            class="sq-input input-base third pad"
+            placeholder="Postal"
+            max="99999"
+            min="10000"
+            oninput="updateCustomerAddress(event)"
+          />
+        </div>
+        <input
+          type="text"
+          id="note1"
+          class="sq-input input-base"
+          placeholder="Roommate Request"
+          oninput="updateCustomerInfo(event)"
+        />
+        <label for="note2">Staying for Sunday Lunch?</label>
+        <input
+          type="checkbox"
+          id="note2"
+          class="sq-input input-base"
+          style="width: unset; height: unset"
+          oninput="updateCustomerInfo(event)"
+        />
+        <select
+          name="note3"
+          id="note3"
+          class="sq-input input-base"
+          oninput="updateCustomerInfo(event)"
+        >
+          <option value="deluxe">Deluxe Private Room</option>
+          <option value="standard" selected>Standard Room</option>
+          <option value="rv">RV Site</option>
+          <option value="bunk">Bunk Beds</option>
+        </select>
+      </div>
+      <div>
+        <div id="sq-card-number"></div>
+        <div class="third" id="sq-expiration-date"></div>
+        <div class="third" id="sq-cvv"></div>
+        <div class="third" id="sq-postal-code"></div>
+        <button
+          id="sq-creditcard"
+          class="button-credit-card"
+          onclick="onGetCardNonce(event)"
+        >
+          Pay $75.00
+        </button>
+        <p style="font-size: 12px; color: #555; margin: 1em 1em 2em">
+          * Full refunds will be given if the event is canceled due to COVID-19
+        </p>
+      </div>
+    </div>
+
+    <script
+      type="text/javascript"
+      src="https://js.squareup.com/v2/paymentform"
+    ></script>
+    <script>
+      var customerInfo = {
+        idempotency_key: uuidv4(),
+        emailAddress: "",
+        givenName: "", // first name
+        familyName: "", // last name
+        note1: "", // roommate request
+        note2: "No", // sunday lunch
+        note3: "standard", // amenity
+        phoneNumber: "",
+        companyName: "", // church
+        address: {
+          addressLine1: "",
+          addressLine2: "",
+          country: "US",
+          locality: "", // city
+          administrativeDistrictLevel1: "", // state
+          postalCode: "", // of residence
+        },
+      };
+
+      var paymentForm = new SqPaymentForm({
+        applicationId: "sq0idp-TVxtwuIUz974AsMmHFVgLg",
+        inputClass: "sq-input",
+
+        inputStyles: [
+          {
+            fontSize: "16px",
+            lineHeight: "24px",
+            padding: "16px",
+            placeholderColor: "#a0a0a0",
+            backgroundColor: "transparent",
+          },
+        ],
+
+        cardNumber: {
+          elementId: "sq-card-number",
+          placeholder: "Card Number",
+        },
+        cvv: {
+          elementId: "sq-cvv",
+          placeholder: "CVV",
+        },
+        expirationDate: {
+          elementId: "sq-expiration-date",
+          placeholder: "MM/YY",
+        },
+        postalCode: {
+          elementId: "sq-postal-code",
+          placeholder: "Postal",
+        },
+
+        callbacks: {
+          cardNonceResponseReceived: function (errors, nonce, cardData) {
+            // check for Nonce errors
+            if (errors) {
+              alert(
+                `Unable to process payment due to the following reasons:\n    ${errors
+                  .map((e) => e.message)
+                  .join("\n    ")}
+                `
+              );
+              enableButton();
+              return;
+            }
+
+            // Use XHR instead of Fetch for compatibility.
+            var url = "/process-payment";
+            var xhr = new XMLHttpRequest();
+
+            var body = JSON.stringify({
+              nonce: nonce,
+              idempotency_key: uuidv4(),
+              location_id: "78Y9DH2DSME2K",
+              customerInfo: customerInfo,
+            });
+
+            xhr.onreadystatechange = function () {
+              // only run if the request is complete.
+              if (xhr.readyState !== 4) return;
+
+              // process our return data
+              if (
+                xhr.readyState === XMLHttpRequest.DONE &&
+                xhr.status === 200
+              ) {
+                // success
+                window.location.href = xhr.response.result.payment.receiptUrl;
+              } else {
+                // failure
+                alert(
+                  "Payment failed to complete! Please verify your info and try again."
+                );
+                enableButton();
+              }
+            };
+
+            xhr.open("POST", url);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.send(body);
+          },
+        },
+      });
+
+      paymentForm.build();
+
+      function onGetCardNonce(event) {
+        event.preventDefault();
+        disableButton();
+        paymentForm.requestCardNonce();
+      }
+
+      // Generate a random UUID as an idempotency key for the payment request
+      // length of idempotency_key should be less than 45
+      function uuidv4() {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+          /[xy]/g,
+          function (c) {
+            var r = (Math.random() * 16) | 0,
+              v = c == "x" ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          }
+        );
+      }
+
+      function updateCustomerInfo(event) {
+        var id = event.target.id;
+        var value = event.target.value;
+        var type = event.target.type;
+        var checked = event.target.checked;
+
+        if (type === "checkbox") {
+          if (checked) {
+            customerInfo[id] = "Yes";
+          } else {
+            customerInfo[id] = "No";
+          }
+        } else {
+          customerInfo[id] = value;
+        }
+      }
+
+      function updateCustomerAddress(event) {
+        var id = event.target.id;
+        var value = event.target.value;
+
+        customerInfo["address"][id] = value;
+      }
+
+      function enableButton() {
+        document.getElementById("sq-creditcard").removeAttribute("disabled");
+        document.getElementById("sq-creditcard").textContent = "Pay $75.00";
+      }
+
+      function disableButton() {
+        document.getElementById("sq-creditcard").setAttribute("disabled", true);
+        document.getElementById("sq-creditcard").textContent = "Processing...";
+      }
+    </script>
+  </body>
+</html>

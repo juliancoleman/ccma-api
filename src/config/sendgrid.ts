@@ -28,6 +28,7 @@ export interface SendEmailData {
 const {
   SENDGRID_REGISTRATION_RECEIPT_EMAIL_TEMPLATE_ID = '',
   SENDGRID_API_KEY = undefined,
+  SENDGRID_CC_ADDRESS = undefined,
 } = process.env;
 
 const sendgridTemplates: EmailTemplateMap = {
@@ -42,7 +43,7 @@ if (typeof SENDGRID_API_KEY === 'string') {
 } else {
   useSandboxMode = true;
   console.error(
-    'Invalid SendGrid API key provided. Falling back to Sandbox mode. Emails will not be sent',
+    'Invalid SendGrid API key provided. Falling back to Sandbox mode. Emails will not be sent.',
   );
 }
 
@@ -52,6 +53,7 @@ export function sendEmail(data: SendEmailData) {
   const msg: sgMail.MailDataRequired = {
     to,
     from: 'no-reply@centralcalmensadvance.com',
+    cc: SENDGRID_CC_ADDRESS,
     dynamicTemplateData,
     templateId: sendgridTemplates[templateName],
     mailSettings: {

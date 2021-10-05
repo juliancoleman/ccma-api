@@ -14,7 +14,7 @@ config();
 import controllers from './controllers/mod';
 
 const app = express();
-const port: number = Number(process.env.PORT) || 3000;
+const port = Number(process.env.PORT) || 3000;
 
 /**
  * Set server response headers
@@ -36,6 +36,8 @@ app.use(
 app.use(express.json());
 // enable parsing of application/x-www-form-urlencoded Content-Type
 app.use(express.urlencoded({ extended: false }));
+// serve files out of the `public/` directory
+app.use(express.static('public'));
 // expose server API routes
 app.use('/', controllers);
 // catch-all Celebrate validation errors
