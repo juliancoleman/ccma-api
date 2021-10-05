@@ -26,7 +26,7 @@ export const createValidator = {
       address: Joi.object()
         .keys({
           addressLine1: Joi.string().trim().required(),
-          addressLine2: Joi.string().trim().default('').optional(),
+          addressLine2: Joi.string().trim().default('').optional().allow(''),
           state: Joi.string().trim().max(2).required(),
           country: Joi.string().trim().required(),
           city: Joi.string().trim().required(),

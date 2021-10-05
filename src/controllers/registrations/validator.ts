@@ -32,7 +32,10 @@ export const createValidator = {
         .trim()
         .valid('standard', 'deluxe', 'bunk', 'rv')
         .required(),
-      roommateRequest: Joi.string().trim().default(null),
+      roommateRequest: Joi.alternatives().try(
+        Joi.string().trim().default(false),
+        Joi.boolean().default(false),
+      ),
       sundayLunch: Joi.boolean().required(),
     })
     .unknown(false),
@@ -48,7 +51,9 @@ export const fullRegistrationValidator = {
           .trim()
           .valid('standard', 'deluxe', 'bunk', 'rv')
           .required(),
-        roommateRequest: Joi.string().trim().default(null),
+        roommateRequest: Joi.alternatives()
+          .try(Joi.string().trim().default(false), Joi.boolean().default(false))
+          .allow(null),
         sundayLunch: Joi.boolean().required(),
       }),
       payment: Joi.object().keys({

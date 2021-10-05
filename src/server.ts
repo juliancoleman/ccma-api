@@ -2,7 +2,6 @@ import { errors } from 'celebrate';
 import cors from 'cors';
 import { config } from 'dotenv';
 import express from 'express';
-import * as path from 'path';
 
 /**
  * Load environment variables
@@ -38,7 +37,7 @@ app.use(express.json());
 // enable parsing of application/x-www-form-urlencoded Content-Type
 app.use(express.urlencoded({ extended: false }));
 // serve files out of the `public/` directory
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static('public'));
 // expose server API routes
 app.use('/', controllers);
 // catch-all Celebrate validation errors
